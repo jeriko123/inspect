@@ -28,6 +28,7 @@ import {
 } from "lucide-react-native";
 import { useAppStore } from "../store/useAppStore";
 import { addObservation } from "../db/database";
+import { EMERALD_COLOR, ZINC_COLOR } from "../store/const";
 
 const schema = z.object({
   date: z.string().min(1, "add.validation.date"),
@@ -52,17 +53,23 @@ const schema = z.object({
 });
 
 const SPECIES_OPTIONS = [
-  "bear",
-  "wolf",
-  "fox",
-  "deer",
-  "wild_boar",
-  "lynx",
-  "elk",
-  "hare",
-  "eagle",
+  "tortoise",
+  "lizard",
+  "water_snake",
+  "steppe_ribbon_snake",
+  "tatary_sand_boa",
+  "glass_lizard",
+  "pallass_coluber",
+  "white_stork",
+  "black_stork",
+  "common_pheasant",
+  "tolai_hare",
+  "jackal",
+  "karagan_fox",
+  "steppe_cat",
+  "jungle_cat",
   "badger",
-  "other",
+  "deer",
 ];
 
 export default function AddObservationScreen() {
@@ -201,7 +208,7 @@ export default function AddObservationScreen() {
                 activeOpacity={0.7}
                 className="flex-row items-center gap-x-3 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 active:bg-zinc-800/80"
               >
-                <Calendar size={18} className="text-emerald-500" />
+                <Calendar size={18} color={EMERALD_COLOR} />
                 <Controller
                   control={control}
                   name="date"
@@ -232,7 +239,7 @@ export default function AddObservationScreen() {
                 activeOpacity={0.7}
                 className="flex-row items-center gap-x-3 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 active:bg-zinc-800/80"
               >
-                <Clock size={18} className="text-emerald-500" />
+                <Clock size={18} color={EMERALD_COLOR} />
                 <Controller
                   control={control}
                   name="time"
@@ -301,7 +308,7 @@ export default function AddObservationScreen() {
               {t("add.countLabel")}
             </Text>
             <View className="flex-row items-center bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-1">
-              <Info size={18} className="text-emerald-500 mr-2" />
+              <Info size={18} color={EMERALD_COLOR} className=" mr-2" />
               <Controller
                 control={control}
                 name="count"
@@ -358,7 +365,7 @@ export default function AddObservationScreen() {
                 <ActivityIndicator size="small" color="#10b981" />
               ) : (
                 <>
-                  <MapPin size={18} className="text-emerald-500" />
+                  <MapPin size={18} color={EMERALD_COLOR} />
                   <Text className="text-emerald-400 text-sm font-bold">
                     {t("add.getCoords")}
                   </Text>
@@ -373,7 +380,11 @@ export default function AddObservationScreen() {
               {t("add.notesLabel")}
             </Text>
             <View className="flex-row items-start bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3">
-              <AlignLeft size={18} className="text-emerald-500 mr-2 mt-1" />
+              <AlignLeft
+                size={18}
+                color={EMERALD_COLOR}
+                className="ml-2 mt-1"
+              />
               <Controller
                 control={control}
                 name="notes"

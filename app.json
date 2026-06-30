@@ -26,6 +26,11 @@
       "expo-sqlite",
       "expo-sharing",
       "@react-native-community/datetimepicker"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "667552db-84de-4c1c-9762-e3f2f6f0cad5"
+      }
+    }
   }
 }
