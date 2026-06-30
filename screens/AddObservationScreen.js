@@ -1,43 +1,68 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Platform, ActivityIndicator, Alert, KeyboardAvoidingView } from 'react-native';
-import { useForm, Controller } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { useNavigation } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import { Picker } from '@react-native-picker/picker';
-import * as Location from 'expo-location';
-import { Calendar, Clock, MapPin, AlignLeft, Info, Plus } from 'lucide-react-native';
-import { useAppStore } from '../store/useAppStore';
-import { addObservation } from '../db/database';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Platform,
+  ActivityIndicator,
+  Alert,
+  KeyboardAvoidingView,
+} from "react-native";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useNavigation } from "@react-navigation/native";
+import { useTranslation } from "react-i18next";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import { Picker } from "@react-native-picker/picker";
+import * as Location from "expo-location";
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  AlignLeft,
+  Info,
+  Plus,
+} from "lucide-react-native";
+import { useAppStore } from "../store/useAppStore";
+import { addObservation } from "../db/database";
 
 const schema = z.object({
-  date: z.string().min(1, 'add.validation.date'),
-  time: z.string().min(1, 'add.validation.time'),
-  species: z.string().min(1, 'add.validation.species').refine((val) => val !== 'select_placeholder', {
-    message: 'add.validation.species',
-  }),
-  count: z.string()
+  date: z.string().min(1, "add.validation.date"),
+  time: z.string().min(1, "add.validation.time"),
+  species: z
+    .string()
+    .min(1, "add.validation.species")
+    .refine((val) => val !== "select_placeholder", {
+      message: "add.validation.species",
+    }),
+  count: z
+    .string()
     .transform((val) => parseInt(val, 10))
-    .pipe(z.number({ invalid_type_error: 'add.validation.count' }).positive('add.validation.count')),
+    .pipe(
+      z
+        .number({ invalid_type_error: "add.validation.count" })
+        .positive("add.validation.count"),
+    ),
   latitude: z.union([z.number(), z.nan(), z.null()]).optional(),
   longitude: z.union([z.number(), z.nan(), z.null()]).optional(),
   notes: z.string().optional(),
 });
 
 const SPECIES_OPTIONS = [
-  'bear',
-  'wolf',
-  'fox',
-  'deer',
-  'wild_boar',
-  'lynx',
-  'elk',
-  'hare',
-  'eagle',
-  'badger',
-  'other',
+  "bear",
+  "wolf",
+  "fox",
+  "deer",
+  "wild_boar",
+  "lynx",
+  "elk",
+  "hare",
+  "eagle",
+  "badger",
+  "other",
 ];
 
 export default function AddObservationScreen() {
@@ -52,43 +77,49 @@ export default function AddObservationScreen() {
   const [isLocating, setIsLocating] = useState(false);
 
   // Form setup
-  const defaultDateStr = new Date().toISOString().split('T')[0];
-  const defaultTimeStr = `${String(new Date().getHours()).padStart(2, '0')}:${String(new Date().getMinutes()).padStart(2, '0')}`;
+  const defaultDateStr = new Date().toISOString().split("T")[0];
+  const defaultTimeStr = `${String(new Date().getHours()).padStart(2, "0")}:${String(new Date().getMinutes()).padStart(2, "0")}`;
 
-  const { control, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm({
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
       date: defaultDateStr,
       time: defaultTimeStr,
-      species: 'select_placeholder',
-      count: '',
+      species: "select_placeholder",
+      count: "",
       latitude: null,
       longitude: null,
-      notes: '',
+      notes: "",
     },
   });
 
-  const watchLatitude = watch('latitude');
-  const watchLongitude = watch('longitude');
+  const watchLatitude = watch("latitude");
+  const watchLongitude = watch("longitude");
 
   // Handle Date Selection
   const onDateChange = (event, selectedDate) => {
-    setShowDatePicker(Platform.OS === 'ios');
+    setShowDatePicker(Platform.OS === "ios");
     if (selectedDate) {
       setDateVal(selectedDate);
-      const formatted = selectedDate.toISOString().split('T')[0];
-      setValue('date', formatted);
+      const formatted = selectedDate.toISOString().split("T")[0];
+      setValue("date", formatted);
     }
   };
 
   // Handle Time Selection
   const onTimeChange = (event, selectedTime) => {
-    setShowTimePicker(Platform.OS === 'ios');
+    setShowTimePicker(Platform.OS === "ios");
     if (selectedTime) {
       setTimeVal(selectedTime);
-      const hours = String(selectedTime.getHours()).padStart(2, '0');
-      const minutes = String(selectedTime.getMinutes()).padStart(2, '0');
-      setValue('time', `${hours}:${minutes}`);
+      const hours = String(selectedTime.getHours()).padStart(2, "0");
+      const minutes = String(selectedTime.getMinutes()).padStart(2, "0");
+      setValue("time", `${hours}:${minutes}`);
     }
   };
 
@@ -97,8 +128,8 @@ export default function AddObservationScreen() {
     setIsLocating(true);
     try {
       const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert(t('add.coordsLabel'), t('add.gpsDenied'));
+      if (status !== "granted") {
+        Alert.alert(t("add.coordsLabel"), t("add.gpsDenied"));
         return;
       }
 
@@ -107,14 +138,14 @@ export default function AddObservationScreen() {
       });
 
       if (location && location.coords) {
-        setValue('latitude', location.coords.latitude);
-        setValue('longitude', location.coords.longitude);
+        setValue("latitude", location.coords.latitude);
+        setValue("longitude", location.coords.longitude);
       } else {
-        Alert.alert(t('add.coordsLabel'), t('add.gpsError'));
+        Alert.alert(t("add.coordsLabel"), t("add.gpsError"));
       }
     } catch (error) {
-      console.error('Error fetching GPS location:', error);
-      Alert.alert(t('add.coordsLabel'), t('add.gpsError'));
+      console.error("Error fetching GPS location:", error);
+      Alert.alert(t("add.coordsLabel"), t("add.gpsError"));
     } finally {
       setIsLocating(false);
     }
@@ -133,47 +164,51 @@ export default function AddObservationScreen() {
         longitude: data.longitude,
         notes: data.notes,
       });
-      
-      Alert.alert(t('add.title'), t('add.successSave'), [
+
+      Alert.alert(t("add.title"), t("add.successSave"), [
         {
-          text: 'OK',
+          text: "OK",
           onPress: () => {
             navigation.goBack();
           },
         },
       ]);
     } catch (error) {
-      console.error('Failed to save observation:', error);
-      Alert.alert(t('add.title'), 'Failed to save record');
+      console.error("Failed to save observation:", error);
+      Alert.alert(t("add.title"), "Failed to save record");
     }
   };
 
   return (
     <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       className="flex-1 bg-zinc-950"
     >
-      <ScrollView className="flex-1 px-4 py-4" contentContainerStyle={{ paddingBottom: 60 }}>
-        <View className="space-y-5">
-          
+      <ScrollView
+        className="flex-1 px-4 py-4"
+        contentContainerStyle={{ paddingBottom: 60 }}
+      >
+        <View className="gap-y-5">
           {/* Date & Time Row */}
-          <View className="flex-row space-x-3">
+          <View className="flex-row gap-x-3">
             {/* Date Input */}
-            <View className="flex-1 space-y-2">
+            <View className="flex-1 gap-y-2">
               <Text className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                {t('add.date')}
+                {t("add.date")}
               </Text>
               <TouchableOpacity
                 onPress={() => setShowDatePicker(true)}
                 activeOpacity={0.7}
-                className="flex-row items-center space-x-3 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 active:bg-zinc-800/80"
+                className="flex-row items-center gap-x-3 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 active:bg-zinc-800/80"
               >
                 <Calendar size={18} className="text-emerald-500" />
                 <Controller
                   control={control}
                   name="date"
                   render={({ field: { value } }) => (
-                    <Text className="text-white text-base font-semibold">{value}</Text>
+                    <Text className="text-white text-base font-semibold">
+                      {value}
+                    </Text>
                   )}
                 />
               </TouchableOpacity>
@@ -188,21 +223,23 @@ export default function AddObservationScreen() {
             </View>
 
             {/* Time Input */}
-            <View className="flex-1 space-y-2">
+            <View className="flex-1 gap-y-2">
               <Text className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-                {t('add.time')}
+                {t("add.time")}
               </Text>
               <TouchableOpacity
                 onPress={() => setShowTimePicker(true)}
                 activeOpacity={0.7}
-                className="flex-row items-center space-x-3 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 active:bg-zinc-800/80"
+                className="flex-row items-center gap-x-3 bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 active:bg-zinc-800/80"
               >
                 <Clock size={18} className="text-emerald-500" />
                 <Controller
                   control={control}
                   name="time"
                   render={({ field: { value } }) => (
-                    <Text className="text-white text-base font-semibold">{value}</Text>
+                    <Text className="text-white text-base font-semibold">
+                      {value}
+                    </Text>
                   )}
                 />
               </TouchableOpacity>
@@ -219,9 +256,9 @@ export default function AddObservationScreen() {
           </View>
 
           {/* Species Dropdown Selector */}
-          <View className="space-y-2">
+          <View className="gap-y-2">
             <Text className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-              {t('add.speciesLabel')}
+              {t("add.speciesLabel")}
             </Text>
             <View className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden">
               <Controller
@@ -232,11 +269,11 @@ export default function AddObservationScreen() {
                     selectedValue={value}
                     onValueChange={onChange}
                     dropdownIconColor="#10b981"
-                    style={{ color: '#ffffff', backgroundColor: 'transparent' }}
+                    style={{ color: "#ffffff", backgroundColor: "transparent" }}
                   >
-                    <Picker.Item 
-                      label={t('add.selectSpecies')} 
-                      value="select_placeholder" 
+                    <Picker.Item
+                      label={t("add.selectSpecies")}
+                      value="select_placeholder"
                       color="#71717a"
                     />
                     {SPECIES_OPTIONS.map((item) => (
@@ -244,7 +281,7 @@ export default function AddObservationScreen() {
                         key={item}
                         label={t(`species.${item}`)}
                         value={item}
-                        color={Platform.OS === 'ios' ? '#ffffff' : '#000000'}
+                        color={Platform.OS === "ios" ? "#ffffff" : "#000000"}
                       />
                     ))}
                   </Picker>
@@ -259,9 +296,9 @@ export default function AddObservationScreen() {
           </View>
 
           {/* Quantity Count Input */}
-          <View className="space-y-2">
+          <View className="gap-y-2">
             <Text className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-              {t('add.countLabel')}
+              {t("add.countLabel")}
             </Text>
             <View className="flex-row items-center bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-1">
               <Info size={18} className="text-emerald-500 mr-2" />
@@ -273,7 +310,7 @@ export default function AddObservationScreen() {
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}
-                    placeholder={t('add.countPlaceholder')}
+                    placeholder={t("add.countPlaceholder")}
                     placeholderTextColor="#71717a"
                     keyboardType="number-pad"
                     className="flex-1 text-white py-2.5 font-semibold text-base"
@@ -289,23 +326,23 @@ export default function AddObservationScreen() {
           </View>
 
           {/* Location GPS Section */}
-          <View className="space-y-3">
+          <View className="gap-y-3">
             <Text className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-              {t('add.coordsLabel')}
+              {t("add.coordsLabel")}
             </Text>
-            <View className="flex-row space-x-3">
+            <View className="flex-row gap-x-3">
               {/* Latitude Input */}
               <View className="flex-1 bg-zinc-900/50 border border-zinc-850 rounded-xl px-4 py-3 flex-row items-center justify-between">
                 <Text className="text-xs font-bold text-zinc-500">LAT</Text>
                 <Text className="text-white text-base font-semibold">
-                  {watchLatitude != null ? watchLatitude.toFixed(5) : '—'}
+                  {watchLatitude != null ? watchLatitude.toFixed(5) : "—"}
                 </Text>
               </View>
               {/* Longitude Input */}
               <View className="flex-1 bg-zinc-900/50 border border-zinc-850 rounded-xl px-4 py-3 flex-row items-center justify-between">
                 <Text className="text-xs font-bold text-zinc-500">LON</Text>
                 <Text className="text-white text-base font-semibold">
-                  {watchLongitude != null ? watchLongitude.toFixed(5) : '—'}
+                  {watchLongitude != null ? watchLongitude.toFixed(5) : "—"}
                 </Text>
               </View>
             </View>
@@ -315,7 +352,7 @@ export default function AddObservationScreen() {
               onPress={fetchLocation}
               disabled={isLocating}
               activeOpacity={0.8}
-              className="w-full border border-emerald-600/30 bg-emerald-600/10 py-3.5 rounded-xl items-center justify-center flex-row space-x-2 active:bg-emerald-600/20 disabled:opacity-50"
+              className="w-full border border-emerald-600/30 bg-emerald-600/10 py-3.5 rounded-xl items-center justify-center flex-row gap-x-2 active:bg-emerald-600/20 disabled:opacity-50"
             >
               {isLocating ? (
                 <ActivityIndicator size="small" color="#10b981" />
@@ -323,7 +360,7 @@ export default function AddObservationScreen() {
                 <>
                   <MapPin size={18} className="text-emerald-500" />
                   <Text className="text-emerald-400 text-sm font-bold">
-                    {t('add.getCoords')}
+                    {t("add.getCoords")}
                   </Text>
                 </>
               )}
@@ -331,9 +368,9 @@ export default function AddObservationScreen() {
           </View>
 
           {/* Notes Input */}
-          <View className="space-y-2">
+          <View className="gap-y-2">
             <Text className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
-              {t('add.notesLabel')}
+              {t("add.notesLabel")}
             </Text>
             <View className="flex-row items-start bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3">
               <AlignLeft size={18} className="text-emerald-500 mr-2 mt-1" />
@@ -345,7 +382,7 @@ export default function AddObservationScreen() {
                     onBlur={onBlur}
                     onChangeText={onChange}
                     value={value}
-                    placeholder={t('add.notesPlaceholder')}
+                    placeholder={t("add.notesPlaceholder")}
                     placeholderTextColor="#71717a"
                     multiline={true}
                     numberOfLines={4}
@@ -368,11 +405,10 @@ export default function AddObservationScreen() {
               <ActivityIndicator size="small" color="#ffffff" />
             ) : (
               <Text className="text-white text-base font-extrabold tracking-wide uppercase">
-                {t('add.saveButton')}
+                {t("add.saveButton")}
               </Text>
             )}
           </TouchableOpacity>
-
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

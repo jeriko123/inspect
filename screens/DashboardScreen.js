@@ -145,18 +145,16 @@ export default function DashboardScreen() {
         : item.species;
 
     return (
-      <View className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-4 shadow-md space-y-4">
+      <View className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-4 shadow-md gap-y-4">
         {/* Card Header */}
         <View className="flex-row justify-between items-center border-b border-zinc-800/80 pb-3">
-          <View className="flex-row items-center space-x-2.5">
+          <View className="flex-row items-center gap-x-2.5">
             <View className="bg-emerald-600/50 p-2 rounded-xl border border-emerald-500">
               <PawPrint size={18} color="white" />
             </View>
-            <View className="pl-3">
-              <Text className="text-lg font-bold text-white tracking-tight">
-                {translatedSpecies}
-              </Text>
-            </View>
+            <Text className="text-lg font-bold text-white tracking-tight">
+              {translatedSpecies}
+            </Text>
           </View>
           <View className="bg-emerald-600/15 border border-emerald-500/20 px-3 py-1 rounded-full">
             <Text className="text-xs font-bold text-emerald-400">
@@ -166,23 +164,23 @@ export default function DashboardScreen() {
         </View>
 
         {/* Card Body Info */}
-        <View className="flex-row flex-wrap justify-between pt-1">
-          <View className="flex-row items-center space-x-2 w-[48%] mb-2">
+        <View className="flex-row flex-wrap justify-between ">
+          <View className="flex-row items-center gap-x-2 w-[48%]">
             <Calendar size={14} color={EMERALD_COLOR} />
-            <Text className="pl-2 text-xs font-semibold text-zinc-400">
+            <Text className="text-xs font-semibold text-zinc-400">
               {item.date}
             </Text>
           </View>
-          <View className="flex-row items-center space-x-2 w-[48%] mb-2">
+          <View className="flex-row items-center gap-x-2 w-[48%]">
             <Clock size={14} color={EMERALD_COLOR} />
-            <Text className="pl-2 text-xs font-semibold text-zinc-400">
+            <Text className="text-xs font-semibold text-zinc-400">
               {item.time}
             </Text>
           </View>
           {item.latitude != null && item.longitude != null && (
-            <View className="flex-row items-center space-x-2 w-full mt-1">
+            <View className="flex-row items-center gap-x-2 w-full ">
               <MapPin size={14} color={EMERALD_COLOR} />
-              <Text className="pl-2 text-xs font-semibold text-zinc-400">
+              <Text className="text-xs font-semibold text-zinc-400">
                 {item.latitude.toFixed(5)}, {item.longitude.toFixed(5)}
               </Text>
             </View>
@@ -191,22 +189,22 @@ export default function DashboardScreen() {
 
         {/* Card Notes */}
         {item.notes ? (
-          <View className="bg-zinc-950 border border-zinc-850 p-3 rounded-xl flex-row items-start space-x-2">
+          <View className="bg-zinc-950 border border-zinc-850 p-3 rounded-xl flex-row items-start gap-x-2">
             <BookOpen
               size={14}
               color={EMERALD_COLOR}
               className="text-zinc-500 mt-0.5"
             />
-            <Text className="pl-3 text-xs font-medium text-zinc-400 flex-1 leading-relaxed">
+            <Text className="text-xs font-medium text-zinc-400 flex-1 leading-relaxed">
               {item.notes}
             </Text>
           </View>
         ) : null}
 
         {/* Inspector Name */}
-        <View className="flex-row items-center space-x-1.5 pt-1">
+        <View className="flex-row items-center gap-x-1.5 pt-1">
           <User2 size={12} color={EMERALD_COLOR} />
-          <Text className="pl-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+          <Text className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
             {t("dashboard.inspector", { name: item.inspector_name })}
           </Text>
         </View>
