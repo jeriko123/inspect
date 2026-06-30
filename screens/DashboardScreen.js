@@ -23,7 +23,7 @@ import {
 } from "lucide-react-native";
 import { useObservations } from "../hooks/useObservations";
 import { getAllObservationsForExport } from "../db/database";
-import { EMERALD_COLOR } from "../store/const";
+import { EMERALD_COLOR, ZINC_COLOR } from "../store/const";
 
 export default function DashboardScreen() {
   const { t } = useTranslation();
@@ -166,20 +166,20 @@ export default function DashboardScreen() {
         {/* Card Body Info */}
         <View className="flex-row flex-wrap justify-between ">
           <View className="flex-row items-center gap-x-2 w-[48%]">
-            <Calendar size={14} color={EMERALD_COLOR} />
+            <Calendar size={14} color={ZINC_COLOR} />
             <Text className="text-xs font-semibold text-zinc-400">
               {item.date}
             </Text>
           </View>
           <View className="flex-row items-center gap-x-2 w-[48%]">
-            <Clock size={14} color={EMERALD_COLOR} />
+            <Clock size={14} color={ZINC_COLOR} />
             <Text className="text-xs font-semibold text-zinc-400">
               {item.time}
             </Text>
           </View>
           {item.latitude != null && item.longitude != null && (
             <View className="flex-row items-center gap-x-2 w-full ">
-              <MapPin size={14} color={EMERALD_COLOR} />
+              <MapPin size={14} color={ZINC_COLOR} />
               <Text className="text-xs font-semibold text-zinc-400">
                 {item.latitude.toFixed(5)}, {item.longitude.toFixed(5)}
               </Text>
@@ -192,7 +192,7 @@ export default function DashboardScreen() {
           <View className="bg-zinc-950 border border-zinc-850 p-3 rounded-xl flex-row items-start gap-x-2">
             <BookOpen
               size={14}
-              color={EMERALD_COLOR}
+              color={ZINC_COLOR}
               className="text-zinc-500 mt-0.5"
             />
             <Text className="text-xs font-medium text-zinc-400 flex-1 leading-relaxed">
@@ -203,7 +203,7 @@ export default function DashboardScreen() {
 
         {/* Inspector Name */}
         <View className="flex-row items-center gap-x-1.5 pt-1">
-          <User2 size={12} color={EMERALD_COLOR} />
+          <User2 size={12} color={ZINC_COLOR} />
           <Text className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
             {t("dashboard.inspector", { name: item.inspector_name })}
           </Text>
