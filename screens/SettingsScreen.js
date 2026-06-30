@@ -170,14 +170,14 @@ export default function SettingsScreen() {
       >
         {/* Profile Card Section */}
         <View className="flex-1">
-          <View className=" flex-row items-center space-x-2">
+          <View className=" flex-row items-center gap-x-2">
             <User size={18} color={EMERALD_COLOR} />
-            <Text className="ml-1 text-xs font-bold text-zinc-400 uppercase tracking-wider">
+            <Text className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
               {t("settings.sectionProfile")}
             </Text>
           </View>
-          <View className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl shadow-md space-y-4">
-            <View className="space-y-2">
+          <View className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl shadow-md gap-y-4">
+            <View className="gap-y-2">
               <Text className="text-xs font-semibold text-zinc-500">
                 {t("settings.changeNameLabel")}
               </Text>
@@ -193,19 +193,19 @@ export default function SettingsScreen() {
         </View>
 
         {/* Application Params Section */}
-        <View className=" space-y-3">
-          <View className="flex-row items-center">
+        <View className=" gap-y-3">
+          <View className="flex-row items-center gap-x-2">
             <Languages size={18} color={EMERALD_COLOR} />
-            <Text className="pl-1 text-xs font-bold text-zinc-400 uppercase tracking-wider">
+            <Text className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
               {t("settings.sectionApp")}
             </Text>
           </View>
-          <View className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl shadow-md space-y-4">
-            <View className="space-y-2">
+          <View className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl shadow-md gap-y-4">
+            <View className="gap-y-2">
               <Text className="text-xs font-semibold text-zinc-500">
                 {t("settings.languageLabel")}
               </Text>
-              <View className="flex-row space-x-2">
+              <View className="flex-row gap-x-2">
                 <TouchableOpacity
                   onPress={() => setLanguage("ru")}
                   activeOpacity={0.7}
@@ -242,14 +242,14 @@ export default function SettingsScreen() {
         </View>
 
         {/* Database Operations & Danger Zone */}
-        <View className="flex-3 space-y-3">
-          <View className="flex-row items-center space-x-2">
+        <View className="gap-y-3">
+          <View className="flex-row items-center gap-x-2">
             <Database size={18} color={EMERALD_COLOR} />
-            <Text className="pl-1 text-xs font-bold text-zinc-400 uppercase tracking-wider">
+            <Text className=" text-xs font-bold text-zinc-400 uppercase tracking-wider">
               {t("settings.sectionDanger")}
             </Text>
           </View>
-          <View className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl shadow-md space-y-4">
+          <View className="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl shadow-md gap-y-4">
             {/* Import CSV */}
             <TouchableOpacity
               onPress={handleImportCSV}
@@ -257,7 +257,7 @@ export default function SettingsScreen() {
               activeOpacity={0.8}
               className="w-full bg-zinc-950 border border-zinc-850 rounded-xl py-3.5 px-4 flex-row items-center justify-between active:bg-zinc-850"
             >
-              <View className="flex-row items-center space-x-3">
+              <View className="flex-row items-center gap-x-3">
                 <DownloadCloud size={20} className="text-zinc-400" />
                 <Text className="text-white text-sm font-semibold">
                   {t("settings.importCsv")}
@@ -274,7 +274,7 @@ export default function SettingsScreen() {
               activeOpacity={0.8}
               className="w-full bg-red-600/10 border border-red-500/20 rounded-xl py-3.5 px-4 flex-row items-center justify-between active:bg-red-600/20"
             >
-              <View className="flex-row items-center space-x-3">
+              <View className="flex-row items-center gap-x-3">
                 <Trash2 size={20} className="text-red-500" />
                 <Text className="text-red-400 text-sm font-bold">
                   {t("settings.clearDb")}
