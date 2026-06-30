@@ -1,23 +1,41 @@
-import React, { useEffect, useCallback } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { useTranslation } from 'react-i18next';
-import * as FileSystem from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
-import { Plus, Download, PawPrint, Calendar, Clock, MapPin, User2, BookOpen } from 'lucide-react-native';
-import { useObservations } from '../hooks/useObservations';
-import { getAllObservationsForExport } from '../db/database';
+import React, { useEffect, useCallback } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+} from "react-native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import { useTranslation } from "react-i18next";
+import * as FileSystem from "expo-file-system/legacy";
+import * as Sharing from "expo-sharing";
+import {
+  Plus,
+  Download,
+  PawPrint,
+  Calendar,
+  Clock,
+  MapPin,
+  User2,
+  BookOpen,
+} from "lucide-react-native";
+import { useObservations } from "../hooks/useObservations";
+import { getAllObservationsForExport } from "../db/database";
+import { EMERALD_COLOR } from "../store/const";
 
 export default function DashboardScreen() {
   const { t } = useTranslation();
   const navigation = useNavigation();
-  const { observations, isLoading, isRefreshing, loadMore, refresh } = useObservations();
+  const { observations, isLoading, isRefreshing, loadMore, refresh } =
+    useObservations();
 
   // Reload data whenever screen is focused (e.g., after returning from Add Screen)
   useFocusEffect(
     useCallback(() => {
       refresh();
-    }, [refresh])
+    }, [refresh]),
   );
 
   // CSV Export Logic
@@ -25,23 +43,38 @@ export default function DashboardScreen() {
     try {
       const records = getAllObservationsForExport();
       if (records.length === 0) {
-        Alert.alert(t('dashboard.emptyTitle'), t('dashboard.emptySubtitle'));
+        Alert.alert(t("dashboard.emptyTitle"), t("dashboard.emptySubtitle"));
         return;
       }
 
       // Escape helper for CSV cells
       const escapeCsvVal = (val) => {
-        if (val === null || val === undefined) return '';
+        if (val === null || val === undefined) return "";
         const str = String(val);
-        if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+        if (
+          str.includes(",") ||
+          str.includes('"') ||
+          str.includes("\n") ||
+          str.includes("\r")
+        ) {
           return `"${str.replace(/"/g, '""')}"`;
         }
         return str;
       };
 
       // Header row
-      const headers = ['id', 'date', 'time', 'inspector_name', 'species', 'count', 'latitude', 'longitude', 'notes'];
-      const csvRows = [headers.join(',')];
+      const headers = [
+        "id",
+        "date",
+        "time",
+        "inspector_name",
+        "species",
+        "count",
+        "latitude",
+        "longitude",
+        "notes",
+      ];
+      const csvRows = [headers.join(",")];
 
       // Data rows
       for (const record of records) {
@@ -52,14 +85,14 @@ export default function DashboardScreen() {
           escapeCsvVal(record.inspector_name),
           escapeCsvVal(record.species),
           record.count,
-          record.latitude != null ? record.latitude : '',
-          record.longitude != null ? record.longitude : '',
+          record.latitude != null ? record.latitude : "",
+          record.longitude != null ? record.longitude : "",
           escapeCsvVal(record.notes),
         ];
-        csvRows.push(row.join(','));
+        csvRows.push(row.join(","));
       }
 
-      const csvContent = csvRows.join('\n');
+      const csvContent = csvRows.join("\n");
       const fileUri = `${FileSystem.cacheDirectory}observations_${Date.now()}.csv`;
 
       // Write to local temporary cache
@@ -70,28 +103,31 @@ export default function DashboardScreen() {
       // Share the file
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(fileUri, {
-          mimeType: 'text/csv',
-          dialogTitle: t('dashboard.title'),
-          UTI: 'public.comma-separated-values-text',
+          mimeType: "text/csv",
+          dialogTitle: t("dashboard.title"),
+          UTI: "public.comma-separated-values-text",
         });
       } else {
-        Alert.alert(t('dashboard.exportError'), 'Sharing is not available on this device');
+        Alert.alert(
+          t("dashboard.exportError"),
+          "Sharing is not available on this device",
+        );
       }
     } catch (error) {
-      console.error('Error exporting CSV:', error);
-      Alert.alert(t('dashboard.exportError'), error.message);
+      console.error("Error exporting CSV:", error);
+      Alert.alert(t("dashboard.exportError"), error.message);
     }
   }, [t]);
 
   // Configure navigation header options
   useEffect(() => {
     navigation.setOptions({
-      headerTitle: t('dashboard.title'),
+      headerTitle: t("dashboard.title"),
       headerRight: () => (
         <TouchableOpacity
           onPress={handleExportCSV}
           activeOpacity={0.7}
-          className="p-2 mr-2 bg-emerald-600/10 rounded-full border border-emerald-500/20 active:bg-emerald-600/20"
+          className="p-2 mr-2 bg-emerald-600 rounded-full border border-emerald-500/50 active:bg-emerald-600/20"
         >
           <Download size={20} className="text-emerald-500" />
         </TouchableOpacity>
@@ -103,25 +139,28 @@ export default function DashboardScreen() {
   const renderItem = ({ item }) => {
     // Translate species name or fallback to raw
     const speciesTranslationKey = `species.${item.species.toLowerCase()}`;
-    const translatedSpecies = t(speciesTranslationKey) !== speciesTranslationKey 
-      ? t(speciesTranslationKey) 
-      : item.species;
+    const translatedSpecies =
+      t(speciesTranslationKey) !== speciesTranslationKey
+        ? t(speciesTranslationKey)
+        : item.species;
 
     return (
       <View className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 mb-4 shadow-md space-y-4">
         {/* Card Header */}
         <View className="flex-row justify-between items-center border-b border-zinc-800/80 pb-3">
           <View className="flex-row items-center space-x-2.5">
-            <View className="bg-emerald-600/10 p-2 rounded-xl border border-emerald-500/15">
-              <PawPrint size={18} className="text-emerald-500" />
+            <View className="bg-emerald-600/50 p-2 rounded-xl border border-emerald-500">
+              <PawPrint size={18} color="white" />
             </View>
-            <Text className="text-lg font-bold text-white tracking-tight">
-              {translatedSpecies}
-            </Text>
+            <View className="pl-3">
+              <Text className="text-lg font-bold text-white tracking-tight">
+                {translatedSpecies}
+              </Text>
+            </View>
           </View>
           <View className="bg-emerald-600/15 border border-emerald-500/20 px-3 py-1 rounded-full">
             <Text className="text-xs font-bold text-emerald-400">
-              {t('dashboard.count', { count: item.count })}
+              {t("dashboard.count", { count: item.count })}
             </Text>
           </View>
         </View>
@@ -129,17 +168,21 @@ export default function DashboardScreen() {
         {/* Card Body Info */}
         <View className="flex-row flex-wrap justify-between pt-1">
           <View className="flex-row items-center space-x-2 w-[48%] mb-2">
-            <Calendar size={14} className="text-zinc-500" />
-            <Text className="text-xs font-semibold text-zinc-400">{item.date}</Text>
+            <Calendar size={14} color={EMERALD_COLOR} />
+            <Text className="pl-2 text-xs font-semibold text-zinc-400">
+              {item.date}
+            </Text>
           </View>
           <View className="flex-row items-center space-x-2 w-[48%] mb-2">
-            <Clock size={14} className="text-zinc-500" />
-            <Text className="text-xs font-semibold text-zinc-400">{item.time}</Text>
+            <Clock size={14} color={EMERALD_COLOR} />
+            <Text className="pl-2 text-xs font-semibold text-zinc-400">
+              {item.time}
+            </Text>
           </View>
           {item.latitude != null && item.longitude != null && (
             <View className="flex-row items-center space-x-2 w-full mt-1">
-              <MapPin size={14} className="text-zinc-500" />
-              <Text className="text-xs font-semibold text-zinc-400">
+              <MapPin size={14} color={EMERALD_COLOR} />
+              <Text className="pl-2 text-xs font-semibold text-zinc-400">
                 {item.latitude.toFixed(5)}, {item.longitude.toFixed(5)}
               </Text>
             </View>
@@ -149,8 +192,12 @@ export default function DashboardScreen() {
         {/* Card Notes */}
         {item.notes ? (
           <View className="bg-zinc-950 border border-zinc-850 p-3 rounded-xl flex-row items-start space-x-2">
-            <BookOpen size={14} className="text-zinc-500 mt-0.5" />
-            <Text className="text-xs font-medium text-zinc-400 flex-1 leading-relaxed">
+            <BookOpen
+              size={14}
+              color={EMERALD_COLOR}
+              className="text-zinc-500 mt-0.5"
+            />
+            <Text className="pl-3 text-xs font-medium text-zinc-400 flex-1 leading-relaxed">
               {item.notes}
             </Text>
           </View>
@@ -158,9 +205,9 @@ export default function DashboardScreen() {
 
         {/* Inspector Name */}
         <View className="flex-row items-center space-x-1.5 pt-1">
-          <User2 size={12} className="text-zinc-600" />
-          <Text className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
-            {t('dashboard.inspector', { name: item.inspector_name })}
+          <User2 size={12} color={EMERALD_COLOR} />
+          <Text className="pl-2 text-[10px] font-bold text-zinc-500 uppercase tracking-wider">
+            {t("dashboard.inspector", { name: item.inspector_name })}
           </Text>
         </View>
       </View>
@@ -184,10 +231,10 @@ export default function DashboardScreen() {
           <PawPrint size={48} className="text-zinc-600" />
         </View>
         <Text className="text-lg font-bold text-white text-center">
-          {t('dashboard.emptyTitle')}
+          {t("dashboard.emptyTitle")}
         </Text>
         <Text className="text-sm font-medium text-zinc-500 text-center mt-2 leading-relaxed">
-          {t('dashboard.emptySubtitle')}
+          {t("dashboard.emptySubtitle")}
         </Text>
       </View>
     );
@@ -211,7 +258,7 @@ export default function DashboardScreen() {
 
       {/* Floating Action Button */}
       <TouchableOpacity
-        onPress={() => navigation.navigate('AddObservation')}
+        onPress={() => navigation.navigate("AddObservation")}
         activeOpacity={0.8}
         className="absolute bottom-6 right-6 w-16 h-16 bg-emerald-600 rounded-full justify-center items-center shadow-lg shadow-emerald-500/30 active:bg-emerald-700"
       >
