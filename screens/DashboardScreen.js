@@ -62,31 +62,34 @@ export default function DashboardScreen() {
         return str;
       };
 
-      // Header row
+      // Header row (translated)
       const headers = [
-        "id",
-        "date",
-        "time",
-        "inspector_name",
-        "species",
-        "count",
-        "latitude",
-        "longitude",
-        "notes",
+        t("dashboard.csv_date"),
+        t("dashboard.csv_time"),
+        t("dashboard.csv_inspector_name"),
+        t("dashboard.csv_species"),
+        t("dashboard.csv_count"),
+        t("dashboard.csv_latitude"),
+        t("dashboard.csv_longitude"),
+        t("dashboard.csv_notes"),
       ];
       const csvRows = [headers.join(",")];
 
       // Data rows
       for (const record of records) {
+        // Translate species name if possible
+        const speciesKey = `species.${record.species.toLowerCase()}`;
+        const translatedSpecies =
+          t(speciesKey) !== speciesKey ? t(speciesKey) : record.species;
+
         const row = [
-          record.id,
           escapeCsvVal(record.date),
           escapeCsvVal(record.time),
           escapeCsvVal(record.inspector_name),
-          escapeCsvVal(record.species),
-          record.count,
-          record.latitude != null ? record.latitude : "",
-          record.longitude != null ? record.longitude : "",
+          escapeCsvVal(translatedSpecies),
+          String(record.count || ""),
+          escapeCsvVal(record.latitude != null ? record.latitude : ""),
+          escapeCsvVal(record.longitude != null ? record.longitude : ""),
           escapeCsvVal(record.notes),
         ];
         csvRows.push(row.join(","));
